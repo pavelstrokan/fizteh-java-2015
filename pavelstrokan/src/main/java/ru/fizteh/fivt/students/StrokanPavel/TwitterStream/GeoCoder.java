@@ -25,7 +25,7 @@ public class GeoCoder {
         in.close();
         return givenSource.getString("city");
     }
-    public static GeoLocation getCoordinates (String place) {
+    public static GeoLocation getCoordinates(String place) {
         if ("nearby".equals(place)) {
             try {
                 place = webSource();

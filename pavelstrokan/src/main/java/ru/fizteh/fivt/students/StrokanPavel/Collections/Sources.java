@@ -1,11 +1,7 @@
 package ru.fizteh.fivt.students.StrokanPavel.Collections;
 
-import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Helper methods to create collections.

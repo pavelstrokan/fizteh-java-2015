@@ -15,12 +15,11 @@ public class Max<T, R extends Comparable<R>> implements Aggregator<T, R> {
 
     @Override
     public R apply(List<T> elements) {
-        if(elements.size() == 0) {
+        if (elements.size() == 0) {
             return null;
-        }
-        else {
+        } else {
             R ourMax = thisFunction.apply(elements.get(0));
-            for(T elem : elements) {
+            for (T elem : elements) {
                 if (ourMax.compareTo(thisFunction.apply(elem)) < 0) {
                     ourMax = thisFunction.apply(elem);
                 }

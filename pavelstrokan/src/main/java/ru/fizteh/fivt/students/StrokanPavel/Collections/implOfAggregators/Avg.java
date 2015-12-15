@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.StrokanPavel.Collections.implOfAggregators;
 
-import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.function.Function;
 

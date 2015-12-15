@@ -23,7 +23,7 @@ public class Parameters {
     private Boolean helpMode = false;
 
     @Parameter(names = {"--place", "-p" }, description = "Preferred places restriction")
-    public String place = "nearby";
+    private String place = "nearby";
 
     public String getKeyword() {
         return query;

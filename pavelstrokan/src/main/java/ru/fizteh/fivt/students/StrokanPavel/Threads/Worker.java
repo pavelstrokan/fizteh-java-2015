@@ -2,8 +2,8 @@ package ru.fizteh.fivt.students.StrokanPavel.Threads;
 
 public class Worker extends Thread {
 
-    int number;
-    SynchronizedCounter counter;
+    private int number;
+    private SynchronizedCounter counter;
 
     public Worker(int n, SynchronizedCounter c) {
         number = n;
@@ -11,7 +11,7 @@ public class Worker extends Thread {
     }
 
     public void run() {
-        while(true) {
+        while (true) {
             if (counter.value() == number) {
                 System.out.println("Thread#" + number);
                 counter.increment();

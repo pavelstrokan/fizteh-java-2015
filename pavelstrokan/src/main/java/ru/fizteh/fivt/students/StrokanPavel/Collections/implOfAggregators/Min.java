@@ -15,12 +15,11 @@ public class Min<T, R extends Comparable<R>> implements Aggregator<T, R> {
 
     @Override
     public R apply(List<T> elements) {
-        if(elements.size() == 0) {
+        if (elements.size() == 0) {
             return null;
-        }
-        else {
+        } else {
             R ourMin = thisFunction.apply(elements.get(0));
-            for(T elem : elements) {
+            for (T elem : elements) {
                 if (ourMin.compareTo(thisFunction.apply(elem)) > 0) {
                     ourMin = thisFunction.apply(elem);
                 }

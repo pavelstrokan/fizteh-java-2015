@@ -21,7 +21,8 @@ public class CollectionQuery {
      *
      * @param args
      */
-    public static void main(String[] args) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public static void main(String[] args) throws NoSuchMethodException,
+            InstantiationException, IllegalAccessException, InvocationTargetException {
 //        Iterable<Statistics> statistics =
 //                from(list(
 //                        student("ivanov", LocalDate.parse("1016-08-06"), "124"),
@@ -37,7 +38,8 @@ public class CollectionQuery {
 //                        .orderBy(asc(Student::getGroup), desc(count(Student::getGroup)))
 //                        .limit(2)
 //                        .union()
-//                        .from(list(student("ivanov", LocalDate.parse("1905-08-06"), "494"), student("dasdasdwqe", LocalDate.parse("1905-08-06"), "414")))
+//                        .from(list(student("ivanov", LocalDate.parse("1905-08-06"), "494"), student("dasdasdwqe",
+// LocalDate.parse("1905-08-06"), "414")))
 //                        .select(Statistics.class, Student::getGroup, Student::age)
 //                        .execute();
 //
@@ -120,13 +122,13 @@ public class CollectionQuery {
         @Override
         public String toString() {
             StringBuilder toReturn = new StringBuilder("Students{");
-            if(!group.equals(0)) {
+            if (!group.equals(0)) {
                 toReturn.append("group= ").append(this.group).append('\'');
             }
-            if(!name.equals(0)) {
+            if (!name.equals(0)) {
                 toReturn.append("name= ").append(this.name).append('\'');
             }
-            if(!dateOfBirth.equals(0)) {
+            if (!dateOfBirth.equals(0)) {
                 toReturn.append("dateOfBirth= ").append(this.dateOfBirth).append('\'');
             }
             toReturn.append("}");
@@ -174,13 +176,13 @@ public class CollectionQuery {
         @Override
         public String toString() {
             StringBuilder toReturn = new StringBuilder("Statistics{");
-            if(!group.equals(0)) {
+            if (!group.equals(0)) {
                 toReturn.append("group= ").append(this.group).append('\'');
             }
-            if(!count.equals(0)) {
+            if (!count.equals(0)) {
                 toReturn.append("count= ").append(this.count).append('\'');
             }
-            if(!age.equals(0)) {
+            if (!age.equals(0)) {
                 toReturn.append("age= ").append(this.age).append('\'');
             }
             toReturn.append("}");

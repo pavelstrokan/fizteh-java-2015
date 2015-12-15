@@ -3,7 +3,6 @@ package ru.fizteh.fivt.students.StrokanPavel.Threads;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -22,7 +21,7 @@ public class Main {
         while (notReady) {
             System.out.println("Are you ready?");
             for (int i = 0; i < numberOfThreads; i++) {
-                futures.add(service.submit( () -> {
+                futures.add(service.submit(() -> {
                     Random random = new Random();
                     return random.nextInt(10) != 0;
                 }));
@@ -32,7 +31,11 @@ public class Main {
                 try {
                     Boolean value = currentFuture.get();
                     ready = ready && value;
-                    System.out.println(ready ? "Yes" : "No");
+                    if (ready) {
+                        System.out.println("Yes");
+                    } else {
+                        System.out.println("No");
+                    }
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                     return;

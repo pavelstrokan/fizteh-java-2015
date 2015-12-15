@@ -1,8 +1,6 @@
 package ru.fizteh.fivt.students.StrokanPavel.Collections.impl;
 
-import javafx.util.Pair;
 import ru.fizteh.fivt.students.StrokanPavel.Collections.implOfAggregators.Aggregator;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Function;
@@ -14,19 +12,19 @@ import java.util.stream.Collectors;
  */
 
 public class SelectStmt<T, R> {
-    boolean isDistinct;
-    boolean isUnion;
-    boolean isJoin;
-    int maxRowsNeeded;
-    Predicate<T> whereRestriction;
-    Predicate<R> havingRestriction;
-    Function<T, ?>[] currentFunctions;
-    Function<T, ?>[] groupByExpressions;
-    Class toReturn;
-    Comparator<R>[] orderByComparators;
-    SummaryComparator<R> summaryComparator;
-    List<R> previousData;
-    List<T> currentData;
+    private boolean isDistinct;
+    private boolean isUnion;
+    private boolean isJoin;
+    private int maxRowsNeeded;
+    private Predicate<T> whereRestriction;
+    private Predicate<R> havingRestriction;
+    private Function<T, ?>[] currentFunctions;
+    private Function<T, ?>[] groupByExpressions;
+    private Class toReturn;
+    private Comparator<R>[] orderByComparators;
+    private SummaryComparator<R> summaryComparator;
+    private List<R> previousData;
+    private List<T> currentData;
 //    Stream<R> toStream;
 
     @SafeVarargs
@@ -83,17 +81,18 @@ public class SelectStmt<T, R> {
         return this;
     }
 
-    public Iterable<R> execute() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public Iterable<R> execute() throws NoSuchMethodException, IllegalAccessException,
+            InvocationTargetException, InstantiationException {
         List<R> execResult = new ArrayList<>();
         Class[] returnClasses = new Class[currentFunctions.length];
         Object[] arguments = new Object[currentFunctions.length];
-        if(whereRestriction != null) {
+        if (whereRestriction != null) {
             List<T> filteredData = currentData.stream()
                     .filter(whereRestriction::test)
                     .collect(Collectors.toList());
             currentData = filteredData;
         }
-        if(groupByExpressions != null) {
+        if (groupByExpressions != null) {
             Map<Integer, Integer> mapped = new HashMap<>();
             List<List<T>> groupedElements = new ArrayList<>();
             List<Tuple<T, Integer>> grouped = new ArrayList<>();
@@ -119,39 +118,41 @@ public class SelectStmt<T, R> {
             for (List<T> group : groupedElements) {
                 int counter = 0;
                 for (Function thisFunction : this.currentFunctions) {
-                    arguments[counter] = (thisFunction instanceof Aggregator) ?
-                                     ((Aggregator) thisFunction).apply(group) : thisFunction.apply(group.get(0));
+                    if (thisFunction instanceof Aggregator) {
+                        arguments[counter] = ((Aggregator) thisFunction).apply(group);
+                    } else {
+                        arguments[counter] = thisFunction.apply(group.get(0));
+                    }
                     returnClasses[counter] = arguments[counter].getClass();
                     ++counter;
                 }
-                if(isJoin) {
+                if (isJoin) {
                     Tuple newElement = new Tuple(arguments[0], arguments[1]);
                     execResult.add((R) newElement);
-                }
-                else {
+                } else {
                     R newElement = (R) toReturn.getConstructor(returnClasses).newInstance(arguments);
                     execResult.add(newElement);
                 }
             }
-        }
+        } else {
 
-
-        else {
-
-            for(T elem : currentData) {
+            for (T elem : currentData) {
                 int counter = 0;
                 for (Function thisFunction : this.currentFunctions) {
                     List<T> thisElement = new ArrayList<>();
                     thisElement.add(elem);
-                    arguments[counter] = (thisFunction instanceof Aggregator) ? ((Aggregator) thisFunction).apply(thisElement) : thisFunction.apply(elem);
+                    if (thisFunction instanceof Aggregator) {
+                        arguments[counter] = ((Aggregator) thisFunction).apply(thisElement);
+                    } else {
+                        arguments[counter] = thisFunction.apply(elem);
+                    }
                     returnClasses[counter] = arguments[counter].getClass();
                     ++counter;
                 }
-                if(isJoin) {
+                if (isJoin) {
                     Tuple newElement = new Tuple(arguments[0], arguments[1]);
                     execResult.add((R) newElement);
-                }
-                else {
+                } else {
                     R newElement = (R) toReturn.getConstructor(returnClasses).newInstance(arguments);
                     execResult.add(newElement);
                 }
@@ -176,8 +177,9 @@ public class SelectStmt<T, R> {
         }
 
         if (maxRowsNeeded != -1) {
-            if(maxRowsNeeded < execResult.size())
+            if (maxRowsNeeded < execResult.size()) {
                 execResult = execResult.subList(0, maxRowsNeeded);
+            }
         }
 
         System.out.println(execResult.size());
@@ -215,7 +217,8 @@ public class SelectStmt<T, R> {
             return this;
         }
 
-        public UnionStmt<T, R> union() throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        public UnionStmt<T, R> union() throws NoSuchMethodException,
+                IllegalAccessException, InstantiationException, InvocationTargetException {
             this.isUnion = true;
             List<R> answer = (List<R>) this.execute();
             System.out.println(answer.size());

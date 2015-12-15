@@ -33,14 +33,14 @@ public class Main {
             jCommander.usage();
         } else {
             if (parameters.getKeyword().isEmpty()) {
-                System.out.println("Empty query error\n" +
-                        "Use TwitterStream --help for details");
+                System.out.println("Empty query error\n"
+                        + "Use TwitterStream --help for details");
             } else {
                 try {
                     if (parameters.isStreamMode()) {
-                        StreamMode(parameters);
+                        streamMode(parameters);
                     } else {
-                        DefaultMode(parameters);
+                        defaultMode(parameters);
                     }
                 } catch (TwitterException ex) {
                     System.err.println("Connection error:\n"
@@ -65,15 +65,16 @@ public class Main {
                     .append("] ");
         }
         completeTweet.append(formatNickname(status.getUser().getScreenName()));
-        if(status.isRetweet()) {
+        if (status.isRetweet()) {
             if (parameters.isHideRetweets()) {
                 return;
             }
             completeTweet.append("ретвитнул ");
             String[] retweetPart = status.getText().split(":");
             completeTweet.append(formatNickname(retweetPart[0].substring(FOUR)));
-            for(int i = 1; i < retweetPart.length; ++i)
+            for (int i = 1; i < retweetPart.length; ++i) {
                 completeTweet.append(retweetPart[i]);
+            }
         } else {
             completeTweet.append(status.getText());
             if (status.isRetweeted()) {
@@ -87,7 +88,7 @@ public class Main {
         System.out.println(completeTweet.toString());
     }
 
-    static Queue<Status> Prepare(Parameters parameters) {
+    static Queue<Status> prepare(Parameters parameters) {
         Queue<Status> tweets = new LinkedList<>();
         twitter4j.TwitterStream twitterStream = new TwitterStreamFactory().getSingleton();
         twitter4j.StatusListener listener = new StatusAdapter() {
@@ -108,7 +109,7 @@ public class Main {
         twitterStream.filter(new FilterQuery().track(parameters.getKeyword()));
         return tweets;
     }
-    static void DefaultMode(Parameters parameters) throws TwitterException, IOException,
+    static void defaultMode(Parameters parameters) throws TwitterException, IOException,
             JSONException, InterruptedException {
         Twitter twitter;
         Query query;
@@ -126,8 +127,9 @@ public class Main {
                 for (Status tweet : tweets) {
                     printTweet(tweet, parameters);
                     amountOfPrintedTweets++;
-                    if (amountOfPrintedTweets >= parameters.getLimit())
+                    if (amountOfPrintedTweets >= parameters.getLimit()) {
                         break;
+                    }
                 }
                 amountOfTries = MAX_AMOUNT_OF_TRIES;
             } catch (TwitterException ex) {
@@ -139,8 +141,8 @@ public class Main {
         }
     }
 
-    static void StreamMode(Parameters parameters) {
-        Queue<Status> tweets = Prepare(parameters);
+    static void streamMode(Parameters parameters) {
+        Queue<Status> tweets = prepare(parameters);
         while (true) {
             if (!tweets.isEmpty()) {
                 printTweet(tweets.poll(), parameters);

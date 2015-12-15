@@ -5,8 +5,6 @@ import ru.fizteh.fivt.students.StrokanPavel.Collections.implOfAggregators.Count;
 import ru.fizteh.fivt.students.StrokanPavel.Collections.implOfAggregators.Max;
 import ru.fizteh.fivt.students.StrokanPavel.Collections.implOfAggregators.Min;
 
-import java.awt.geom.Arc2D;
-import java.util.DoubleSummaryStatistics;
 import java.util.function.Function;
 
 /**

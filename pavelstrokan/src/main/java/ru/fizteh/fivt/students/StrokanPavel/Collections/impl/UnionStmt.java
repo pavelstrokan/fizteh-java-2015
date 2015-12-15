@@ -50,7 +50,8 @@ public class UnionStmt<T, R> {
         }
 
         public final <F, Z> SelectStmt<S, Tuple<F, Z>> select(Function<S, F> first, Function<S, Z> second) {
-            return new SelectStmt<S, Tuple<F, Z>>((List<Tuple<F, Z>>) oldElements, currentElements, false, first, second);
+            return new SelectStmt<S, Tuple<F, Z>>((List<Tuple<F, Z>>) oldElements, currentElements,
+                    false, first, second);
         }
 
         @SafeVarargs

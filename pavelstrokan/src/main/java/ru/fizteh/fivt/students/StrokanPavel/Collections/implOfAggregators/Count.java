@@ -15,8 +15,8 @@ public class Count<T> implements Aggregator<T, Long> {
     @Override
     public Long apply(List<T> givenElements) {
         Long count = 0L;
-        for(T elem : givenElements) {
-            if(thisFunction.apply(elem) != null) {
+        for (T elem : givenElements) {
+            if (thisFunction.apply(elem) != null) {
                 ++count;
             }
         }
@@ -25,7 +25,7 @@ public class Count<T> implements Aggregator<T, Long> {
 
     @Override
     public Long apply(T elem) {
-        if(thisFunction.apply(elem) != null) {
+        if (thisFunction.apply(elem) != null) {
             return 1L;
         }
         return 0L;
