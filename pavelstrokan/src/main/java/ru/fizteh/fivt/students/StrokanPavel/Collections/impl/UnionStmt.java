@@ -12,7 +12,7 @@ import java.util.function.Function;
 public class UnionStmt<T, R> {
 
     private List<R> oldQueries = new ArrayList<>();
-    private List<T> currentQuery = new ArrayList<>();
+    private List<T> currentQueries = new ArrayList<>();
     private List<Tuple<T, R>> oldTupleElements = new ArrayList<>();
     private  boolean isTuple;
     public UnionStmt(Iterable<R> toIterate) {
@@ -25,15 +25,11 @@ public class UnionStmt<T, R> {
 
     public UnionStmt(Iterable<T> current, Iterable<R> old) {
         old.forEach(elem -> oldQueries.add(elem));
-        current.forEach(elem -> currentQuery.add(elem));
+        current.forEach(elem -> currentQueries.add(elem));
     }
 
     public <S> FromMember<S, R> from(Iterable<S> elements) {
-        if (isTuple) {
-            return new FromMember<S, R>(oldQueries, elements);
-        } else {
-            return new FromMember<S, R>(oldQueries,  elements);
-        }
+        return new FromMember<S, R>(oldQueries, elements);
     }
 
 
