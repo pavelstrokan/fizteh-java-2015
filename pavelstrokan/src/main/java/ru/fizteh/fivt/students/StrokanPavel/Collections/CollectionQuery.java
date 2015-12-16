@@ -13,9 +13,7 @@ public class CollectionQuery {
 
     public static class Student {
         private final String name;
-
         private final LocalDate dateOfBirth;
-
         private final String group;
 
         public Student(String name, LocalDate dateOfBirth, String group) {
@@ -24,7 +22,7 @@ public class CollectionQuery {
             this.group = group;
         }
 
-        public  Student(String name, String group) {
+        public Student(String name, String group) {
             this.name = name;
             this.group = group;
             this.dateOfBirth = null;

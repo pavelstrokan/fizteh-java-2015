@@ -102,32 +102,30 @@ public class SelectStmt<T, R> {
 
     public Iterable<R> execute() throws NoSuchMethodException, IllegalAccessException,
             InvocationTargetException, InstantiationException {
-        List<R> execResult = new ArrayList<>();
+        List<R> executeResult = new ArrayList<>();
         Class[] returnClasses = new Class[functions.length];
         Object[] arguments = new Object[functions.length];
-        List<R> result = new LinkedList<>();
-        Set<R> distinctResult = new HashSet<>();
-        List<List<T>> groupedData = new LinkedList<>();
+        List<List<T>> groups = new LinkedList<>();
         if (whereRestriction != null) {
             data = data.stream()
                     .filter(whereRestriction::test)
                     .collect(Collectors.toList());
         }
         if (groupByExpressions.size() == 0) {
-            data.forEach(element -> groupedData.add(Arrays.asList(element)));
+            data.forEach(element -> groups.add(Arrays.asList(element)));
         } else {
-            Map<String, List<T>> groups = new HashMap<>();
+            Map<String, List<T>> groupsBuilder = new HashMap<>();
             data.forEach(element -> {
                 StringBuilder groupName = new StringBuilder();
                 groupByExpressions.forEach(expression -> groupName.append(expression.apply(element).toString()));
-                if (!groups.containsKey(groupName.toString())) {
-                    groups.put(groupName.toString(), new LinkedList<>());
+                if (!groupsBuilder.containsKey(groupName.toString())) {
+                    groupsBuilder.put(groupName.toString(), new LinkedList<>());
                 }
-                groups.get(groupName.toString()).add(element);
+                groupsBuilder.get(groupName.toString()).add(element);
             });
-            groups.forEach((key, value) -> groupedData.add(value));
+            groupsBuilder.forEach((key, value) -> groups.add(value));
         }
-        for (List<T> group : groupedData) {
+        for (List<T> group : groups) {
             for (int i = 0; i < functions.length; ++i) {
                 if (functions[i] instanceof Aggregator) {
                     arguments[i] = ((Aggregator) functions[i]).apply(group);
@@ -138,34 +136,34 @@ public class SelectStmt<T, R> {
             }
             if (isJoin) {
                 Tuple newElement = new Tuple(arguments[0], arguments[1]);
-                execResult.add((R) newElement);
+                executeResult.add((R) newElement);
             } else {
                 R newElement = (R) returnClass.getConstructor(returnClasses).newInstance(arguments);
-                execResult.add(newElement);
+                executeResult.add(newElement);
             }
         }
         if (havingRestriction != null) {
-            execResult = execResult.stream()
+            executeResult = executeResult.stream()
                     .filter(havingRestriction::test)
                     .collect(Collectors.toList());
         }
         if (isDistinct) {
-            Set<R> hashes = new HashSet<>(execResult);
-            execResult = new ArrayList<>(hashes);
+            Set<R> distinct = new HashSet<>(executeResult);
+            executeResult = new ArrayList<>(distinct);
         }
         if (orderByComparators != null) {
-            execResult.sort(summaryComparator);
+            executeResult.sort(summaryComparator);
         }
         if (maxRowsNeeded != -1) {
-            if (maxRowsNeeded < execResult.size()) {
-                execResult = execResult.subList(0, maxRowsNeeded);
+            if (maxRowsNeeded < executeResult.size()) {
+                executeResult = executeResult.subList(0, maxRowsNeeded);
             }
         }
         if (isUnion) {
-            previousData.addAll(execResult);
-            execResult = previousData;
+            previousData.addAll(executeResult);
+            executeResult = previousData;
         }
-        return execResult;
+        return executeResult;
     }
 
     @SafeVarargs

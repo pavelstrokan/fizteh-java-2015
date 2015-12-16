@@ -18,13 +18,13 @@ public class Min<T, R extends Comparable<R>> implements Aggregator<T, R> {
         if (elements.size() == 0) {
             return null;
         } else {
-            R ourMin = thisFunction.apply(elements.get(0));
+            R min = thisFunction.apply(elements.get(0));
             for (T elem : elements) {
-                if (ourMin.compareTo(thisFunction.apply(elem)) > 0) {
-                    ourMin = thisFunction.apply(elem);
+                if (min.compareTo(thisFunction.apply(elem)) > 0) {
+                    min = thisFunction.apply(elem);
                 }
             }
-            return ourMin;
+            return min;
         }
     }
 

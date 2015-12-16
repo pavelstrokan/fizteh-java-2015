@@ -15,7 +15,7 @@ public class UnionStmt<T, R> {
     private List<T> currentQueries = new ArrayList<>();
     private  boolean isTuple;
     public UnionStmt(Iterable<R> toIterate) {
-        toIterate.forEach(elem -> oldQueries.add(elem));
+        toIterate.forEach(oldQueries::add);
     }
     public UnionStmt(Iterable<R> toIterate, boolean isTuple) {
         toIterate.forEach(elem -> oldQueries.add(elem));
@@ -23,8 +23,8 @@ public class UnionStmt<T, R> {
     }
 
     public UnionStmt(Iterable<T> current, Iterable<R> old) {
-        old.forEach(elem -> oldQueries.add(elem));
-        current.forEach(elem -> currentQueries.add(elem));
+        old.forEach(oldQueries::add);
+        current.forEach(currentQueries::add);
     }
 
     public <S> FromMember<S, R> from(Iterable<S> elements) {
@@ -36,8 +36,8 @@ public class UnionStmt<T, R> {
         private List<R> oldElements = new ArrayList<>();
         private List<S> currentElements = new ArrayList<>();
         public FromMember(Iterable<R> pastElements, Iterable<S> elements) {
-            pastElements.forEach(elem -> this.oldElements.add(elem));
-            elements.forEach(elem -> this.currentElements.add(elem));
+            pastElements.forEach(oldElements::add);
+            elements.forEach(currentElements::add);
         }
         @SafeVarargs
         public final SelectStmt<S, R> select(Class<R> returnClass, Function<S, ?>... functions) {
@@ -69,7 +69,7 @@ public class UnionStmt<T, R> {
         public JoinMember(List<R> pastElements, List<F> firstElements, Iterable<J> secondElements) {
             this.oldElements.addAll(pastElements);
             this.firstElements.addAll(firstElements);
-            secondElements.forEach(elem -> this.secondElements.add(elem));
+            secondElements.forEach(this.secondElements::add);
         }
 
         public FromMember<Tuple<F, J>, R> on(BiPredicate<F, J> condition) {
