@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.StrokanPavel.Collections.impl;
 
-import javafx.util.Pair;
 import ru.fizteh.fivt.students.StrokanPavel.Collections.implOfAggregators.Aggregator;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -20,7 +19,7 @@ public class SelectStmt<T, R> {
     private Predicate<T> whereRestriction;
     private Predicate<R> havingRestriction;
     private Function<T, ?>[] functions;
-    private Function<T, ?>[] groupByExpressions;
+    private List<Function<T, ?>> groupByExpressions = new ArrayList<>();
     private Class returnClass;
     private Comparator<R>[] orderByComparators;
     private SummaryComparator<R> summaryComparator;
@@ -106,93 +105,53 @@ public class SelectStmt<T, R> {
         List<R> execResult = new ArrayList<>();
         Class[] returnClasses = new Class[functions.length];
         Object[] arguments = new Object[functions.length];
+        List<R> result = new LinkedList<>();
+        Set<R> distinctResult = new HashSet<>();
+        List<List<T>> groupedData = new LinkedList<>();
         if (whereRestriction != null) {
             data = data.stream()
                     .filter(whereRestriction::test)
                     .collect(Collectors.toList());
         }
-        if (groupByExpressions != null) {
-            Map<Integer, Integer> mapped = new HashMap<>();
-            List<List<T>> groupedElements = new ArrayList<>();
-            List<Pair<T, Integer>> grouped = new ArrayList<>();
-            String[] results = new String[groupByExpressions.length];
-            data.stream().forEach(
-                    element -> {
-                        for (int i = 0; i < groupByExpressions.length; i++) {
-                            results[i] = (String) groupByExpressions[i].apply(element);
-                        }
-                        if (!mapped.containsKey(Objects.hash(results))) {
-                            mapped.put(Objects.hash(results), mapped.size());
-                        }
-                        grouped.add(new Pair(element, mapped.get(Objects.hash(results))));
-                    }
-            );
-//dlya togo chtoby kazhdomu elementu iz mapa sootvetstovalo otvetvleniye
-            for (int i = 0; i < mapped.size(); i++) {
-                groupedElements.add(new ArrayList<T>());
-            }
-            for (Pair<T, Integer> element : grouped) {
-                groupedElements.get(element.getValue()).add(element.getKey());
-            }
-            for (List<T> group : groupedElements) {
-                int counter = 0;
-                for (Function thisFunction : this.functions) {
-                    if (thisFunction instanceof Aggregator) {
-                        arguments[counter] = ((Aggregator) thisFunction).apply(group);
-                    } else {
-                        arguments[counter] = thisFunction.apply(group.get(0));
-                    }
-                    returnClasses[counter] = arguments[counter].getClass();
-                    ++counter;
-                }
-                if (isJoin) {
-                    Tuple newElement = new Tuple(arguments[0], arguments[1]);
-                    execResult.add((R) newElement);
-                } else {
-                    R newElement = (R) returnClass.getConstructor(returnClasses).newInstance(arguments);
-                    execResult.add(newElement);
-                }
-            }
+        if (groupByExpressions.size() == 0) {
+            data.forEach(element -> groupedData.add(Arrays.asList(element)));
         } else {
-            for (T elem : data) {
-                int counter = 0;
-                for (Function thisFunction : this.functions) {
-                    List<T> thisElement = new ArrayList<>();
-                    thisElement.add(elem);
-                    if (thisFunction instanceof Aggregator) {
-                        arguments[counter] = ((Aggregator) thisFunction).apply(thisElement);
-                    } else {
-                        arguments[counter] = thisFunction.apply(elem);
-                    }
-                    returnClasses[counter] = arguments[counter].getClass();
-                    ++counter;
+            Map<String, List<T>> groups = new HashMap<>();
+            data.forEach(element -> {
+                StringBuilder groupName = new StringBuilder();
+                groupByExpressions.forEach(expression -> groupName.append(expression.apply(element).toString()));
+                if (!groups.containsKey(groupName.toString())) {
+                    groups.put(groupName.toString(), new LinkedList<>());
                 }
-                if (isJoin) {
-                    Tuple newElement = new Tuple(arguments[0], arguments[1]);
-                    execResult.add((R) newElement);
+                groups.get(groupName.toString()).add(element);
+            });
+            groups.forEach((key, value) -> groupedData.add(value));
+        }
+        for (List<T> group : groupedData) {
+            for (int i = 0; i < functions.length; ++i) {
+                if (functions[i] instanceof Aggregator) {
+                    arguments[i] = ((Aggregator) functions[i]).apply(group);
                 } else {
-                    R newElement = (R) returnClass.getConstructor(returnClasses).newInstance(arguments);
-                    execResult.add(newElement);
+                    arguments[i] = functions[i].apply(group.get(0));
                 }
+                returnClasses[i] = arguments[i].getClass();
+            }
+            if (isJoin) {
+                Tuple newElement = new Tuple(arguments[0], arguments[1]);
+                execResult.add((R) newElement);
+            } else {
+                R newElement = (R) returnClass.getConstructor(returnClasses).newInstance(arguments);
+                execResult.add(newElement);
             }
         }
         if (havingRestriction != null) {
-            List<R> filteredData = execResult.stream()
+            execResult = execResult.stream()
                     .filter(havingRestriction::test)
                     .collect(Collectors.toList());
-            execResult = filteredData;
         }
         if (isDistinct) {
-            System.out.println(execResult);
-            Set<Integer> hashes = new HashSet<>();
-            List<R> distincted = new ArrayList<>();
-            for (R element : execResult) {
-                if (!hashes.contains(element.toString().hashCode())) {
-                    hashes.add(element.toString().hashCode());
-                    distincted.add(element);
-                }
-            }
-            execResult = distincted;
+            Set<R> hashes = new HashSet<>(execResult);
+            execResult = new ArrayList<>(hashes);
         }
         if (orderByComparators != null) {
             execResult.sort(summaryComparator);
@@ -202,18 +161,16 @@ public class SelectStmt<T, R> {
                 execResult = execResult.subList(0, maxRowsNeeded);
             }
         }
-        System.out.println(execResult.size());
         if (isUnion) {
             previousData.addAll(execResult);
             execResult = previousData;
         }
-        System.out.println(execResult.size());
         return execResult;
     }
 
     @SafeVarargs
     public final SelectStmt<T, R> groupBy(Function<T, ?>... expressions) {
-        this.groupByExpressions = /*Arrays.asList*/(expressions);
+        this.groupByExpressions = Arrays.asList(expressions);
         return this;
     }
 

@@ -13,7 +13,6 @@ public class UnionStmt<T, R> {
 
     private List<R> oldQueries = new ArrayList<>();
     private List<T> currentQueries = new ArrayList<>();
-    private List<Tuple<T, R>> oldTupleElements = new ArrayList<>();
     private  boolean isTuple;
     public UnionStmt(Iterable<R> toIterate) {
         toIterate.forEach(elem -> oldQueries.add(elem));

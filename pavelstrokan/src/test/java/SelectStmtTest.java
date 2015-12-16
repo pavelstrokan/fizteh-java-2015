@@ -62,10 +62,10 @@ public class SelectStmtTest extends TestCase {
                 .groupBy(CollectionQuery.Student::getGroup)
                 .execute();
         List<CollectionQuery.Statistics> resultList = new ArrayList<>();
+        resultList.add(new CollectionQuery.Statistics("213", 1L));
         resultList.add(new CollectionQuery.Statistics("1234", 1L));
         resultList.add(new CollectionQuery.Statistics("456", 1L));
         resultList.add(new CollectionQuery.Statistics("429", 1L));
-        resultList.add(new CollectionQuery.Statistics("213", 1L));
         assertEquals(resultList.size(), result.size());
         for (int i = 0; i < resultList.size(); i++) {
             assertEquals(resultList.get(i).toString(), result.get(i).toString());
@@ -164,19 +164,6 @@ public class SelectStmtTest extends TestCase {
         resultList.add(new CollectionQuery.Student("sinichka", "456"));
         resultList.add(new CollectionQuery.Student("kurica", "429"));
         resultList.add(new CollectionQuery.Student("drakon", "213"));
-        assertEquals(resultList.size(), result.size());
-        for (int i = 0; i < resultList.size(); i++) {
-            assertEquals(resultList.get(i).toString(), result.get(i).toString());
-        }
-    }
-    @Test
-    public void testIsDistinct() throws Exception {
-        List<CollectionQuery.Student> result = (List<CollectionQuery.Student>) distinctSelect.execute();
-        List<CollectionQuery.Student> resultList = new ArrayList<>();
-        resultList.add(new CollectionQuery.Student("pushkin", "123"));
-        resultList.add(new CollectionQuery.Student("plushkin", "123"));
-        resultList.add(new CollectionQuery.Student("sushkin", "789"));
-        resultList.add(new CollectionQuery.Student("krujkin", "789"));
         assertEquals(resultList.size(), result.size());
         for (int i = 0; i < resultList.size(); i++) {
             assertEquals(resultList.get(i).toString(), result.get(i).toString());
