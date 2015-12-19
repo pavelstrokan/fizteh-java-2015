@@ -1,4 +1,5 @@
 package ru.fizteh.fivt.students.StrokanPavel.MiniORM;
+
 import com.google.common.base.CaseFormat;
 import ru.fizteh.fivt.students.StrokanPavel.MiniORM.Annotations.Column;
 import ru.fizteh.fivt.students.StrokanPavel.MiniORM.Annotations.PrimaryKey;
@@ -25,36 +26,47 @@ public class DBService<T> {
     private Field primaryKey;
     private int primaryKeyPos = -1;
     private boolean isCreated = false;
+
     public final DataSource getDataBase() {
         return dataBase;
     }
+
     public final String getDataBaseName() {
         return dataBaseName;
     }
+
     public final List<String> getColumnNames() {
         return columnNames;
     }
+
     public final List<String> getSqlClasses() {
         return sqlClasses;
     }
+
     public final Class<T> getGivenClass() {
         return givenClass;
     }
+
     public final StringBuilder getAllColumnNames() {
         return allColumnNames;
     }
+
     public final Field[] getAllFields() {
         return allFields;
     }
+
     public final String getTableName() {
         return tableName;
     }
+
     public final Field getPrimaryKey() {
         return primaryKey;
     }
+
     public final int getPrimaryKeyPos() {
         return primaryKeyPos;
     }
+
     public DBService(Class<T> givenClass) throws ClassNotFoundException, SQLException {
         Class.forName("org.h2.Driver");
         SQLTypeConverter myOwnConverter = new SQLTypeConverter();
@@ -93,60 +105,51 @@ public class DBService<T> {
         }
         myFirstConnection.close();
     }
-    public List<T> resultSetHandler(ResultSet result) throws SQLException, IllegalAccessException, InstantiationException {
+
+    public List<T> resultSetHandler(ResultSet result) throws SQLException,
+            IllegalAccessException, InstantiationException {
         List<T> answer = new ArrayList<>();
         while (result.next()) {
             T currentElement = givenClass.newInstance();
-            for(int i = 0; i < columnNames.size(); ++i) {
+            for (int i = 0; i < columnNames.size(); ++i) {
                 String currentSQLType = sqlClasses.get(i);
                 Class currentClass = allFields[i].getType();
-                if(currentSQLType == "VARCHAR(20)") {
-                    if(currentClass.equals(String.class)) {
+                if (currentSQLType == "VARCHAR(20)") {
+                    if (currentClass.equals(String.class)) {
                         String toSet = result.getString(i + 1);
                         allFields[i].set(currentElement, toSet);
-                    }
-                    else {
+                    } else {
                         char toSet = result.getString(i + 1).charAt(0);
                         allFields[i].set(currentElement, toSet);
                     }
-                }
-                else if(currentSQLType == "INTEGER") {
+                } else if (currentSQLType == "INTEGER") {
                     Integer toSet = result.getInt(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else if(currentSQLType == "BIGINT") {
+                } else if (currentSQLType == "BIGINT") {
                     Long toSet = result.getLong(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else if(currentSQLType == "TINYINT") {
+                } else if (currentSQLType == "TINYINT") {
                     byte toSet = result.getByte(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else if(currentSQLType == "BOOLEAN") {
+                } else if (currentSQLType == "BOOLEAN") {
                     boolean toSet = result.getBoolean(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else if(currentSQLType == "DOUBLE") {
+                } else if (currentSQLType == "DOUBLE") {
                     Double toSet = result.getDouble(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else if(currentSQLType == "REAL") {
+                } else if (currentSQLType == "REAL") {
                     float toSet = result.getFloat(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else if(currentSQLType == "DATE") {
+                } else if (currentSQLType == "DATE") {
                     Date toSet = result.getDate(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else if(currentSQLType == "TIME") {
+                } else if (currentSQLType == "TIME") {
                     Time toSet = result.getTime(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else if(currentSQLType == "ARRAY") {
+                } else if (currentSQLType == "ARRAY") {
                     Array toSet = result.getArray(i + 1);
                     allFields[i].set(currentElement, toSet);
-                }
-                else {
+                } else {
                     System.out.println("Your class is non-supported");
                 }
             }
@@ -154,26 +157,28 @@ public class DBService<T> {
         }
         return answer;
     }
+
     public <K> T queryById(K thisPrimaryKey) throws SQLException, IllegalAccessException, InstantiationException {
-        if(primaryKey == null) {
+        if (primaryKey == null) {
             System.out.println("There is no primary Key in the Table");
         }
         Connection queryConnection = DriverManager.getConnection("jdbc:h2:./dbTask");
         StringBuilder query = new StringBuilder();
-        query.append("SELECT * FROM ").append(dataBaseName).append(" WHERE ").append(columnNames.get(primaryKeyPos)).append("=?");
+        query.append("SELECT * FROM ").append(dataBaseName).append(" WHERE ").
+                append(columnNames.get(primaryKeyPos)).append("=?");
         PreparedStatement queryStmt = queryConnection.prepareStatement(query.toString());
         queryStmt.setString(1, thisPrimaryKey.toString());
         ResultSet result = queryStmt.executeQuery();
         List<T> answer = resultSetHandler(result);
         queryConnection.close();
-        if(answer.size() == 0) {
+        if (answer.size() == 0) {
             System.out.println("Error while gettting query by primaryKey AnswerSize is null");
             return null;
-        }
-        else {
+        } else {
             return answer.get(0);
         }
     }
+
     public List<T> queryForAll() throws SQLException, InstantiationException, IllegalAccessException {
         Connection queryConnection = DriverManager.getConnection("jdbc:h2:./dbTask");
         StringBuilder query = new StringBuilder();
@@ -184,6 +189,7 @@ public class DBService<T> {
         queryConnection.close();
         return queryResult;
     }
+
     public void insert(T toInsert) throws SQLException, IllegalAccessException {
         Connection insertingConnection = DriverManager.getConnection("jdbc:h2:./dbTask");
         StringBuilder buildValues = new StringBuilder();
@@ -203,6 +209,7 @@ public class DBService<T> {
         assert (diff != 0);
         insertingConnection.close();
     }
+
     public void update(T toUpdate) throws SQLException, IllegalAccessException {
         Connection updateConnection = DriverManager.getConnection("jdbc:h2:./dbTask");
         StringBuilder updateValues = new StringBuilder();
@@ -223,6 +230,7 @@ public class DBService<T> {
         assert (diff != 0);
         updateConnection.close();
     }
+
     public void delete(T toDelete) throws SQLException, IllegalAccessException {
         Connection deletionConnection = DriverManager.getConnection("jdbc:h2:./dbTask");
         StringBuilder deleteValues = new StringBuilder();
@@ -237,8 +245,9 @@ public class DBService<T> {
         assert (diff != 0);
         deletionConnection.close();
     }
+
     public void createTable() throws SQLException, ClassNotFoundException {
-        if(isCreated) {
+        if (isCreated) {
             System.out.println("Table has already been created!");
             return;
         }
@@ -263,6 +272,7 @@ public class DBService<T> {
         isCreated = true;
         creatingConnection.close();
     }
+
     public void dropTable() throws SQLException {
         if (!isCreated) {
             System.out.println("Dropping of non-existing table");
@@ -275,6 +285,7 @@ public class DBService<T> {
         int diff = droppingStatement.executeUpdate(droppingQuery.toString());
         droppingConnection.close();
     }
+
     public static void main(String[] args) {
         List<String> results = new ArrayList<String>();
         results.add("qwerty");

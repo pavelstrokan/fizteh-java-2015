@@ -2,7 +2,6 @@ package ru.fizteh.fivt.students.StrokanPavel.MiniORM;
 
 import java.sql.*;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -10,7 +9,8 @@ import java.util.Map;
  */
 
 public class SQLTypeConverter {
-    static Map<Class, String> classSQLEquivalents = new HashMap<>();
+    private static Map<Class, String> classSQLEquivalents = new HashMap<>();
+
     static {
         classSQLEquivalents.put(String.class, "VARCHAR(20)");
         classSQLEquivalents.put(java.math.BigDecimal.class, "NUMERIC");
@@ -31,11 +31,11 @@ public class SQLTypeConverter {
         classSQLEquivalents.put(Blob.class, "BLOB");
         classSQLEquivalents.put(Array.class, "ARRAY");
     }
+
     public static String convertToSQLType(Class toConvert) {
         if (classSQLEquivalents.containsKey(toConvert)) {
             return classSQLEquivalents.get(toConvert);
-        }
-        else {
+        } else {
             return "SQL doesn't support your Class";
         }
     }
