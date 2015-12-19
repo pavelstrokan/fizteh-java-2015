@@ -1,0 +1,6 @@
+2015-12-19 03:00:38 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLException: Table "PLAYER" not found; SQL statement:
+SELECT * FROM player WHERE id=? [42102-190]
+2015-12-19 03:00:39 jdbc[7]: exception
+org.h2.jdbc.JdbcSQLException: Table "PLAYER" not found; SQL statement:
+UPDATE player SET id=?, last_name=?, salary=?, club=? WHERE id=? [42102-190]
